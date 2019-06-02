@@ -51,11 +51,34 @@ function draw(time) {
 		analyser.getByteTimeDomainData(timeDomainData);
 		drawArray(time, timeDomainCanvas, timeDomainData);
 	}
-	drawVisualization(time);
+	drawVisualization(time, visualizationCanvas);
 }
 
-function drawVisualization(time) {
-	// TODO
+function drawVisualization(time, canvas) {
+	var canvasContext = canvas.getContext("2d");
+	canvasContext.clearRect(0, 0, canvas.width, canvas.height);  
+	canvasContext.beginPath();
+	canvasContext.lineWidth = 2;
+	canvasContext.strokeStyle = '#fff';
+
+	var first = true;
+	var radius = Math.min(canvas.width, canvas.height)*0.25;
+	var bump = Math.min(canvas.width, canvas.height)*0.25;
+
+	for (var t=0; t <= 1.00001; t+=0.001) {
+		var r = radius+ bump* myNoise3dx(Math.sin(2*Math.PI*t),Math.cos(2*Math.PI*t),0,1,6);
+
+		var x = canvas.width/2 + r*Math.sin(2*Math.PI*t);
+		var y = canvas.height/2 + r*Math.cos(2*Math.PI*t);
+
+		if (first) {
+			first = false;
+			canvasContext.moveTo(x, canvas.height-y);
+		} else {
+			canvasContext.lineTo(x, canvas.height-y);
+		}
+	}
+	canvasContext.stroke();
 }
 
 function drawArray(time, canvas, array) {
