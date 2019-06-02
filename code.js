@@ -55,26 +55,37 @@ function draw(time) {
 }
 
 function drawVisualization(time) {
-	var canvasContext = visualizationCanvas.getContext("2d");
-	canvasContext.clearRect(0, 0, visualizationCanvas.width, visualizationCanvas.height);
-	canvasContext.beginPath();
-	canvasContext.lineWidth = 2;
-	canvasContext.strokeStyle = '#fff';
+    var canvasContext = visualizationCanvas.getContext("2d");
+    canvasContext.clearRect(0, 0, visualizationCanvas.width, visualizationCanvas.height);
+    drawLine(time, visualizationCanvas, canvasContext);
+}
 
-	var first = true;
-	for (var t=0; t <= 1; t+= 0.01) {
-		var x = t * visualizationCanvas.width;
-		var centerY = visualizationCanvas.height/2;
-		var amplitude = visualizationCanvas.height/2;
-		var y = centerY + amplitude*Math.sin((t+time)*2*Math.PI);
-		if (first) {
-			first = false;
-			canvasContext.moveTo(x, visualizationCanvas.height-y);
-		} else {
-			canvasContext.lineTo(x, visualizationCanvas.height-y);
-		}
-	}
-	canvasContext.stroke();
+function getIndex(length, percentage) {
+    return Math.round(percentage*(length-1));
+}
+
+function drawLine(time, canvas, canvasContext) {
+    canvasContext.beginPath();
+    canvasContext.lineWidth = 1;
+    canvasContext.strokeStyle = 'rgba(255,255,255,1.0)';
+
+    var first = true;
+    var bump = canvas.height*0.4;
+    var noiseFrequency = 2;
+
+    for (var t=0; t <= 1.00001; t+=0.001) {
+        var d = timeDomainData ? timeDomainData[getIndex(timeDomainData.length, t)]/255 : 0;
+        var x = t*canvas.width;
+        var y = canvas.height/2 + bump* (myNoise3dx(t,d*0.1,time*0.2, noiseFrequency,6));
+
+        if (first) {
+            first = false;
+            canvasContext.moveTo(x, canvas.height-y);
+        } else {
+            canvasContext.lineTo(x, canvas.height-y);
+        }
+    }
+    canvasContext.stroke();
 }
 
 function drawArray(time, canvas, array) {
