@@ -1,9 +1,16 @@
 var visualizationCanvas;
+var timeDomainCanvas;
+var frequencyCanvas;
 var audioContext;
 var audioSource;
+var analyser;
+var frequencyData;
+var timeDomainData;
 
 $(document).ready(function() {
 	visualizationCanvas = document.getElementById("visualization");
+	timeDomainCanvas = document.getElementById("timeDomain");
+	frequencyCanvas = document.getElementById("frequency");
 	window.requestAnimationFrame(loop);
 
 	$("#myFile").change(function (event){
@@ -21,16 +28,30 @@ $(document).ready(function() {
 function playSound(data) {
 	audioContext = new AudioContext();
 	audioSource = audioContext.createBufferSource();
-	audioSource.connect(audioContext.destination);
+	analyser = audioContext.createAnalyser();
+	audioSource.connect(analyser).connect(audioContext.destination);
+
 	audioContext.decodeAudioData(data, function(buffer) {
 		audioSource.buffer = buffer;
 		audioSource.start(0);
 	});
+
+	frequencyData = new Uint8Array(analyser.frequencyBinCount);
+	timeDomainData = new Uint8Array(analyser.frequencyBinCount);
+
 	$("#myFile").remove();
 }
 
 function draw(time) {
-	drawVisualization(time);
+    if(frequencyData) {
+        analyser.getByteFrequencyData(frequencyData);
+        drawArray(time, frequencyCanvas, frequencyData);
+    }
+    if(timeDomainData){
+        analyser.getByteTimeDomainData(timeDomainData);
+        drawArray(time, timeDomainCanvas, timeDomainData);
+    }
+    drawVisualization(time);
 }
 
 function drawVisualization(time) {
@@ -54,4 +75,25 @@ function drawVisualization(time) {
 		}
 	}
 	canvasContext.stroke();
+}
+
+function drawArray(time, canvas, array) {
+    var canvasContext = canvas.getContext("2d");
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+    canvasContext.beginPath();
+    canvasContext.lineWidth = 2;
+    canvasContext.strokeStyle = '#fff';
+
+    var first = true;
+    for (var i=0; i < array.length; ++i) {
+        var x = (i/array.length)*canvas.width;
+        var y = (array[i]/255)*canvas.height;
+        if (first) {
+            first = false;
+            canvasContext.moveTo(x, canvas.height-y);
+        } else {
+            canvasContext.lineTo(x, canvas.height-y);
+        }
+    }
+    canvasContext.stroke();
 }
