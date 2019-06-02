@@ -1,9 +1,33 @@
 var canvas;	
+var audioContext;
+var audioSource;
 
 $(document).ready(function() {
 	canvas = document.getElementById("myCanvas");
 	window.requestAnimationFrame(loop);
+
+	$("#myFile").change(function (event){
+		var file = $(this)[0].files[0];
+		if (file) {
+			var reader = new FileReader();
+			reader.readAsArrayBuffer(file);
+			reader.onload = function(e) {
+				playSound(e.target.result);
+			};
+		}
+	});
 });
+
+function playSound(data) {
+	audioContext = new AudioContext();
+	audioSource = audioContext.createBufferSource(); 
+	audioSource.connect(audioContext.destination); 
+	audioContext.decodeAudioData(data, function(buffer) {
+		audioSource.buffer = buffer;
+		audioSource.start(0);
+	});
+	$("#myFile").remove();
+}
 
 function draw(time) {
 	var canvasContext = canvas.getContext("2d");

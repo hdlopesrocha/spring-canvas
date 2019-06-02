@@ -111,3 +111,5 @@ function loop(timestamp) {
 	lastRender = timestamp;
 	window.requestAnimationFrame(loop);
 }
+
+window.AudioContext = window.AudioContext||window.webkitAudioContext;
