@@ -1,5 +1,6 @@
 var timeDomainCanvas;	
 var frequencyCanvas;	
+var visualizationCanvas;	
 var audioContext;
 var audioSource;
 var analyser;
@@ -9,6 +10,7 @@ var timeDomainData;
 $(document).ready(function() {
 	timeDomainCanvas = document.getElementById("timeDomain");
 	frequencyCanvas = document.getElementById("frequency");
+	visualizationCanvas = document.getElementById("visualization");
 	window.requestAnimationFrame(loop);
 
 	$("#myFile").change(function (event){
@@ -49,6 +51,11 @@ function draw(time) {
 		analyser.getByteTimeDomainData(timeDomainData);
 		drawArray(time, timeDomainCanvas, timeDomainData);
 	}
+	drawVisualization(time);
+}
+
+function drawVisualization(time) {
+	// TODO
 }
 
 function drawArray(time, canvas, array) {
