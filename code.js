@@ -57,7 +57,7 @@ function draw(time) {
 function drawVisualization(time, canvas) {
 	var canvasContext = canvas.getContext("2d");
 	canvasContext.clearRect(0, 0, canvas.width, canvas.height);  
-	for(var past = 0; past <= 1; past+= 0.02) {
+	for(var past = 0; past <= 1; past+= 0.01) {
 		drawLine(time-past, visualizationCanvas, canvasContext);
 	}
 }
@@ -72,24 +72,13 @@ function drawLine(time, canvas, canvasContext) {
 	canvasContext.strokeStyle = 'rgba(255,255,255,0.1)';
 
 	var first = true;
-	var radius = Math.min(canvas.width, canvas.height)*0.25;
-	var bump = Math.min(canvas.width, canvas.height)*0.25;
-	var noiseFrequency = 1;
+	var bump = canvas.height*0.4;
+	var noiseFrequency = 2;
 
 	for (var t=0; t <= 1.00001; t+=0.001) {
-		var d = timeDomainData ? 0.5*(	
-			timeDomainData[getIndex(timeDomainData.length, t)]+
-			timeDomainData[getIndex(timeDomainData.length, 1-t)]
-		)/255 : 0;
-
-		var r = radius+ bump* myNoise3dx(
-								1+Math.sin(2*Math.PI*t),
-								1+Math.cos(2*Math.PI*t),
-								time*0.2+d,
-								noiseFrequency,6);
-
-		var x = canvas.width/2 + r*Math.sin(2*Math.PI*t);
-		var y = canvas.height/2 + r*Math.cos(2*Math.PI*t);
+		var d = timeDomainData ? timeDomainData[getIndex(timeDomainData.length, t)]/255 : 0;
+		var x = t*canvas.width;
+		var y = canvas.height/2 + bump* (myNoise3dx(t,d*0.1,time*0.2, noiseFrequency,6));
 
 		if (first) {
 			first = false;
