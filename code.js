@@ -33,6 +33,7 @@ function playSound(data) {
 	
 	audioContext.decodeAudioData(data, function(buffer) {
 		audioSource.buffer = buffer;
+		audioSource.loop = true;
 		audioSource.start(0);
 	});
 
@@ -57,8 +58,17 @@ function draw(time) {
 function drawVisualization(time, canvas) {
 	var canvasContext = canvas.getContext("2d");
 	canvasContext.clearRect(0, 0, canvas.width, canvas.height);  
+	var noiseFrequency = 2;
+
+	var iters = 5+ myNoise3dx(0.0,0.0,time*0.01, noiseFrequency,6)*5;
+
+
 	for(var past = 0; past <= 1; past+= 0.01) {
-		drawLine(time-past, visualizationCanvas, canvasContext);
+		for(var i=0 ; i < iters ; ++i) {
+			var perc = i/iters;
+			drawLine(time-past, visualizationCanvas, canvasContext, perc*Math.PI*2);
+
+		}
 	}
 }
 
@@ -66,19 +76,32 @@ function getIndex(length, percentage) {
 	return Math.round(percentage*(length-1));
 }
 
-function drawLine(time, canvas, canvasContext) {
-	canvasContext.beginPath();
+function drawLine(time, canvas, canvasContext, angle) {
+	var noiseFrequency = 20;
+
+    var colorR = parseInt((myNoise3dx(time*0.1,0,0,1.0,1.0)*255)+'');
+    var colorG = parseInt((myNoise3dx(0,time*0.1,0,1.0,1.0)*255)+'');
+    var colorB = parseInt((myNoise3dx(0,0,time*0.1,1.0,1.0)*255)+'');
+colorR = colorG = colorB = 255;
 	canvasContext.lineWidth = 1;
-	canvasContext.strokeStyle = 'rgba(255,255,255,0.1)';
+	canvasContext.strokeStyle = 'rgba('+colorR+','+ colorG +','+colorB+',0.2)';
+	canvasContext.beginPath();
+
 
 	var first = true;
 	var bump = canvas.height*0.4;
-	var noiseFrequency = 2;
+	var centerX = canvas.width/2;
+	var centerY = canvas.height/2;
+	var maxR = Math.max(canvas.width, canvas.height)/2.0;
+	var timeMult = 10;
+	var noiseAmp = 500;
 
-	for (var t=0; t <= 1.00001; t+=0.001) {
-		var d = timeDomainData ? timeDomainData[getIndex(timeDomainData.length, t)]/255 : 0;
-		var x = t*canvas.width;
-		var y = canvas.height/2 + bump* (myNoise3dx(t,d*0.1,time*0.2, noiseFrequency,6));
+	for (var t=0; t <= 1.00001; t+=0.008) {
+		var v = timeDomainData ? timeDomainData[getIndex(timeDomainData.length, t)]/255 : 0;
+		var n = myNoise3dx( time*0.01,t,v*0.01,noiseFrequency,6);
+		var d = t * (maxR + noiseAmp*n);
+		var x = centerX + d*Math.sin(t*timeMult+angle);
+		var y = centerY + d*Math.cos(t*timeMult+angle);
 
 		if (first) {
 			first = false;
