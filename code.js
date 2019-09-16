@@ -57,7 +57,9 @@ function draw(time) {
 function drawVisualization(time) {
     var canvasContext = visualizationCanvas.getContext("2d");
     canvasContext.clearRect(0, 0, visualizationCanvas.width, visualizationCanvas.height);
-    drawLine(time, visualizationCanvas, canvasContext);
+    for(var past = 0; past <= 1; past+= 0.01) {
+        drawLine(time-past, visualizationCanvas, canvasContext);
+    }
 }
 
 function getIndex(length, percentage) {
@@ -67,7 +69,7 @@ function getIndex(length, percentage) {
 function drawLine(time, canvas, canvasContext) {
     canvasContext.beginPath();
     canvasContext.lineWidth = 1;
-    canvasContext.strokeStyle = 'rgba(255,255,255,1.0)';
+    canvasContext.strokeStyle = 'rgba(255,255,255,0.1)';
 
     var first = true;
     var bump = canvas.height*0.4;
